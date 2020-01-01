@@ -26,7 +26,7 @@ class SinglePlayer(BaseWidget):
         self.buttonGiveIn.clicked.connect(self._give_in)
         self.buttonRegret.clicked.connect(self._regret)
         self.buttonStart.clicked.connect(self._start)
-        self.win_label: QLabel
+        self.win_label: Union[None, QLabel] = None
 
         self._history = []
 
@@ -34,7 +34,9 @@ class SinglePlayer(BaseWidget):
         pass
 
     def _start(self):
-        self.win_label.hide()
+        if self.win_label is not None:
+            self.win_label.hide()
+            self.win_label = None
         for i in range(8):
             for j in range(8):
                 if self._chessboard.board[i][j] is not None:

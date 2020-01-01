@@ -8,9 +8,10 @@
 
 
 import sys
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QWidget
 
 
@@ -42,7 +43,7 @@ class UiBaseForm(object):
         self.labelRemainingTime.setObjectName("labelRemainingTime")
         self.frame = QtWidgets.QFrame(BaseForm)
         self.frame.setGeometry(QtCore.QRect(0, 0, 800, 600))
-        self.frame.setStyleSheet("background-image: url(./sources/background.png);")
+        self.frame.setStyleSheet("background-image: url(./sources/background2.png);")
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")

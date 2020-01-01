@@ -5,8 +5,7 @@ cgitb.enable(format='error')
 import sys
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtGui import QIcon, QPalette, QBrush, QPixmap, QCloseEvent, QFont, QColor
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QFont
 
 from SinglePlayer import SinglePlayer
 

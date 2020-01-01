@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QLabel
 # 棋盘 左上角位于 (25px, 25px)
 # 每格宽为 68px，边框宽 1px
 # chessboard = [[None for i in range(8)] for j in range(8)]
-PIVOT = (25, 25)
-GRID_SIZE = 68
+PIVOT = (42, 42)
+GRID_SIZE = 63
 BORDER_SIZE = 1
 
 # 列举出8个方向
@@ -60,7 +60,18 @@ class ChessBoard(object):
         self.black_count = 0
 
     def is_finish(self) -> Union[None, str]:
-        return None if self.empty_points > 0 else 'w' if self.white_count >= self.black_count else 'b'
+        legal_w = self.legal_points('w')
+        legal_b = self.legal_points('b')
+        if (len(legal_b) == 0 and len(legal_w) == 0):
+            if self.white_count > self.black_count:
+                return 'w'
+            elif self.black_count < self.white_count:
+                return 'b'
+            else:
+                return 'tie'
+        if self.empty_points == 0:
+            return 'w' if self.white_count >= self.black_count else 'b'
+        return None
 
     def legal_points(self, color: str) -> List[Union[None, Tuple[int, int]]]:
         res = set()
