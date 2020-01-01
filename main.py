@@ -1,17 +1,17 @@
 import cgitb
+import sys
+
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication, QWidget
+
+from NetworkPlayer import NetworkConfig
+from SinglePlayer import SinglePlayer
 
 cgitb.enable(format='error')
-
-import sys
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtGui import QFont
-
-from SinglePlayer import SinglePlayer
-from NetworkPlayer import NetworkConfig
-
 app = None
 ADDR = ("127.0.0.1", 12222)
+
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -55,6 +55,7 @@ class MainWindow(QWidget):
 
     def game_over(self):
         sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
