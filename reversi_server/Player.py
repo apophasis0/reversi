@@ -100,13 +100,13 @@ class Player(object):
                 Player.send_obj(self.sock, data)
                 logging.warning("创建失败，找不到玩家 %s" % json_data['data'])
 
-        elif json_data["message"] == "join":
+        elif json_data["message"] == "create":
             logging.info("玩家加入队列: %s" % json_data["data"])
             logging.info("当前玩家列表: %s" % str([p.name for p in self.player_list.get_player_in_queue()]))
             if json_data["data"] in [p.name for p in self.player_list.get_player_in_queue()]:
                 data = {
                     "message": "reply",
-                    "type": "join",
+                    "type": "create",
                     "data": "已经存在相同用户名的玩家，请重试"
                 }
                 Player.send_obj(self.sock, data)

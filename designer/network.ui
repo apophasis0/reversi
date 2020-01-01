@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>FormNetwork</class>
+    <widget class="QWidget" name="FormNetwork">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>300</width>
+                <height>340</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>在线玩家</string>
+        </property>
+        <widget class="QWidget" name="verticalLayoutWidget">
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>10</y>
+                    <width>271</width>
+                    <height>311</height>
+                </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
+                <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout">
+                        <item>
+                            <widget class="QLabel" name="labelName">
+                                <property name="text">
+                                    <string>玩家名:</string>
+                                </property>
+                            </widget>
+                        </item>
+                        <item>
+                            <widget class="QLineEdit" name="lineEdit"/>
+                        </item>
+                    </layout>
+                </item>
+                <item>
+                    <widget class="QListWidget" name="listPlayers"/>
+                </item>
+                <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_2">
+                        <item>
+                            <widget class="QPushButton" name="pushButtonCreate">
+                                <property name="text">
+                                    <string>创建游戏</string>
+                                </property>
+                            </widget>
+                        </item>
+                        <item>
+                            <widget class="QPushButton" name="pushButtonRefresh">
+                                <property name="text">
+                                    <string>刷新</string>
+                                </property>
+                            </widget>
+                        </item>
+                    </layout>
+                </item>
+            </layout>
+        </widget>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>

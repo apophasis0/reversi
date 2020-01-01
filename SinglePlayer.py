@@ -27,11 +27,13 @@ class SinglePlayer(BaseWidget):
         self.buttonRegret.clicked.connect(self._regret)
         self.buttonStart.clicked.connect(self._start)
         self.win_label = None
+        self.win_pic = None
 
         self._history = []
 
     def _start(self):
-        self.win_label.hide()
+        if self.win_label is not None:
+            self.win_label.hide()
         for i in range(8):
             for j in range(8):
                 if self._chessboard.board[i][j] is not None:
@@ -45,8 +47,13 @@ class SinglePlayer(BaseWidget):
         self._chessboard.set_chessman(Chessman('b', self), (3, 4))
         self._chessboard.set_chessman(Chessman('b', self), (4, 3))
 
+        order = random.randint(0, 1)
+        if order == 0:  # 如果为0后手
+            self.auto_run()
+
     def _give_in(self):
-        self.win('w')
+        if not self._is_over:
+            self.win('w')
 
     def _regret(self):
         pass
@@ -87,7 +94,8 @@ class SinglePlayer(BaseWidget):
                 self.change_color()
 
             winner = self._chessboard.is_finish()
-            print(winner)
+            if winner is not None:
+                self.win(winner)
             if pos in legal_points:
                 self.auto_run()
 
