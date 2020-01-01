@@ -77,7 +77,18 @@ class BaseWidget(QWidget, UiBaseForm):
         self.setupUi(self)
         self.is_exit = True
 
-    def
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        if self.is_exit:
+            self.exitSignal.emit()
+        else:
+            self.backSignal.emit()
+
+    def back(self):
+        self.is_exit = False
+        self.close()
+
+    def logo_move(self):
+        pass
 
 
 if __name__ == '__main__':
