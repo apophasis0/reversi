@@ -16,16 +16,29 @@
   <widget class="QPushButton" name="pushButtonSingle">
    <property name="geometry">
     <rect>
-     <x>200</x>
-     <y>100</y>
-     <width>231</width>
-     <height>71</height>
+        <x>200</x>
+        <y>100</y>
+        <width>231</width>
+        <height>71</height>
     </rect>
    </property>
-   <property name="text">
-    <string>单人游戏</string>
-   </property>
+      <property name="text">
+          <string>单人游戏</string>
+      </property>
   </widget>
+     <widget class="QPushButton" name="pushButtonNetwork">
+         <property name="geometry">
+             <rect>
+                 <x>200</x>
+                 <y>260</y>
+                 <width>231</width>
+                 <height>71</height>
+             </rect>
+         </property>
+         <property name="text">
+             <string>在线对战</string>
+         </property>
+     </widget>
  </widget>
  <resources/>
  <connections/>

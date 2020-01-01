@@ -1,22 +1,24 @@
 import logging
 import socket
-import sys
 from threading import Thread
 
 from reversi_server.Player import PlayerList, Player
 
-player_list: PlayerList = PlayerList.__init__()
+"""
+使用一个TCP服务器进行转发，从而实现两个客户端之间的通信
+两个客户端之间的通信数据使用 json 进行包装
+"""
 
 
 def start_listen(server_sock: socket.socket):
-    global player_list
+    player_list = PlayerList()
     logging.info("开始监听")
     while True:
         try:
             sock, addr = server_sock.accept()
             # 发送当前列表信息
             data = {
-                "msg": "player_list",
+                "message": "player_list",
                 "data": [p.name for p in player_list.get_player_in_queue()]
             }
             Player.send_obj(sock, data)
@@ -24,7 +26,7 @@ def start_listen(server_sock: socket.socket):
             logging.info("当前队列中玩家: %s" % str([p.name for p in player_list.get_player_in_queue()]))
             name = "玩家 {}".format(len(player_list.get_players()))
             player = Player(sock, name)
-            player_list.get_players().append(player)
+            player_list.add(player)
             data = {
                 "message": "get_name",
                 "data": name
@@ -37,9 +39,10 @@ def start_listen(server_sock: socket.socket):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # port = int(sys.argv[0])
-    port = 12332
+    port = 10223
     try:
         tcp_server.bind(("127.0.0.1", port))
         tcp_server.listen(32)

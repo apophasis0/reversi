@@ -6,7 +6,16 @@ from BaseUi import *
 from NetworkUi import Ui_FormNetwork
 from reversi_server.Player import *
 
-receive_sock = Player.receive_sock
+
+def receive_sock(sock):
+    total_data = ""
+    while True:
+        data = sock.recv(1024).decode()
+        if END_FLAG in data:
+            total_data += data[:data.index(END_FLAG)]
+            break
+        total_data += data
+    return total_data
 
 
 class NetworkConfig(QWidget, Ui_FormNetwork):
@@ -40,8 +49,7 @@ class NetworkConfig(QWidget, Ui_FormNetwork):
         self.setupUi(self)
         self.pushButtonRefresh.clicked.connect(self.refresh)
         self.refresh()
-        self.listPlayers.itemDoubleClicked.connect(self.item_double_clicked)
-        self.pushButtonJoin.clicked.connect(self.join_battle)
+        self.listPlayers.itemDoubleClicked.connect(self.join_battle)
         self.pushButtonCreate.clicked.connect(self.create_game)
         self.disconnectionSignal.connect(self.disconnect_)
 
@@ -87,7 +95,6 @@ class NetworkConfig(QWidget, Ui_FormNetwork):
         elif json_data["message"] == "reply":
             if json_data["type"] == "create":
                 QMessageBox.information(self, "消息", json_data["data"])
-                self.pushButtonJoin.setEnabled(False)
                 self.lineEditName.setEnabled(True)
                 self.is_create = False
                 self.pushButtonCreate.setText("创建游戏")
@@ -133,7 +140,7 @@ class NetworkConfig(QWidget, Ui_FormNetwork):
                 "data": self.lineEditName.text().strip()
             }
             NetworkConfig.send_obj(self.sock, data)
-            self.pushButtonJoin.setEnabled(True)
+            # self.pushButtonJoin.setEnabled(True)
             self.lineEditName.setEnabled(False)
             self.pushButtonCreate.setText("取消游戏")
             self.is_create = True
@@ -143,7 +150,6 @@ class NetworkConfig(QWidget, Ui_FormNetwork):
                 "message": "quit"
             }
             NetworkConfig.send_obj(self.sock, data)
-            self.pushButtonJoin.setEnabled(False)
             self.lineEditName.setEnabled(True)
             self.is_create = False
             self.pushButtonCreate.setText("创建游戏")
@@ -171,10 +177,10 @@ class NetworkPlayer(BaseWidget):
     def __init__(self, sock: socket.socket, name: str, parent=None):
         super().__init__(parent)
         self.name = name  # 对手昵称
-        self.setupUi(self)
+        # self.setupUi(self)
         self._chessboard = ChessBoard()
         self._is_finish = True
-        self._color = 'w'
+        self._color = 'b'
         self.is_my_turn = False
         self.keep_connection = True
 
@@ -186,11 +192,12 @@ class NetworkPlayer(BaseWidget):
         self.labelStatusValue = QLabel("点击开始", self)
         self.labelStatusValue.resize(200, 20)
         self.labelStatusValue.setAlignment(Qt.AlignTop)
-        self.labelStatus.move(630, 200)
-        self.labelStatusValue.move(690, 204)
+        self.labelStatus.move(630, 400)
+        self.labelStatusValue.move(690, 404)
 
         self.buttonStart.clicked.connect(self.start)
         self.buttonGiveIn.clicked.connect(self.lose)
+        self.buttonBack.clicked.connect(self.back)
         self.win_label = QLabel(self)
 
         # 网络
@@ -203,7 +210,17 @@ class NetworkPlayer(BaseWidget):
         self.dataSignal.connect(self.deal_data)
         self.disconnectionSignal.connect(self.disconnect_)
 
+        # 初始化棋盘
+
     def start(self):
+        if self.win_label is not None:
+            self.win_label.hide()
+        for i in range(8):
+            for j in range(8):
+                if self._chessboard.board[i][j] is not None:
+                    self._chessboard.board[i][j].hide()
+                    self._chessboard.board[i][j] = None
+        self._chessboard = ChessBoard()
         data = {
             "message": "action",
             "data": "restart",
@@ -212,9 +229,24 @@ class NetworkPlayer(BaseWidget):
         NetworkConfig.send_obj(self.tcp_socket, data)
         self.labelStatusValue.setText("请求开始新游戏")
         self.is_my_turn = False
+        self._chessboard.set_chessman(Chessman('w', self), (3, 3))
+        self._chessboard.set_chessman(Chessman('w', self), (4, 4))
+        self._chessboard.set_chessman(Chessman('b', self), (3, 4))
+        self._chessboard.set_chessman(Chessman('b', self), (4, 3))
 
     def restart_func(self):
+        if self.win_label is not None:
+            self.win_label.hide()
+        for i in range(8):
+            for j in range(8):
+                if self._chessboard.board[i][j] is not None:
+                    self._chessboard.board[i][j].hide()
+                    self._chessboard.board[i][j] = None
         self._chessboard = ChessBoard()
+        self._chessboard.set_chessman(Chessman('w', self), (3, 3))
+        self._chessboard.set_chessman(Chessman('w', self), (4, 4))
+        self._chessboard.set_chessman(Chessman('b', self), (3, 4))
+        self._chessboard.set_chessman(Chessman('b', self), (4, 3))
         if self._is_finish:
             if self.win_label is not None:
                 self.win_label.close()
@@ -240,12 +272,13 @@ class NetworkPlayer(BaseWidget):
             else:
                 self.win(color=self._color)
 
-    def recv_data(self, sock: socket.socket):
+    def recv_data(self, sock: socket.socket, addr):
         self.is_connected = True
 
         while self.keep_connection:
             try:
                 recv = receive_sock(sock)
+                logging.debug(recv)
             except (ConnectionAbortedError, ConnectionResetError):
                 if not self.keep_connection:
                     break
@@ -291,7 +324,8 @@ class NetworkPlayer(BaseWidget):
                     data = {
                         "message": "reply",
                         "data": True,
-                        "restart": "player"
+                        "type": "restart",
+                        "target": "player"
                     }
                     NetworkConfig.send_obj(self.tcp_socket, data)
                     self.restart_func()
@@ -305,7 +339,8 @@ class NetworkPlayer(BaseWidget):
                     data = {
                         "message": "reply",
                         "data": False,
-                        "restart": "player"
+                        "type": "restart",
+                        "target": "player"
                     }
                     NetworkConfig.send_obj(self.tcp_socket, data)
                     self.labelStatusValue.setText("点击开始")
@@ -325,12 +360,13 @@ class NetworkPlayer(BaseWidget):
 
         elif data["message"] == "position":
             pos = data["data"]
-            if self._chessboard.board[pos[1]][pos[0]] is not None:
+            print(pos)
+            if pos[1] >= 0 and pos[0] >= 0 and self._chessboard.board[pos[1]][pos[0]] is not None:
                 return
-            legal_points = self._chessboard.legal_points(self._color)
-            if len(legal_points) == 0:
-                return
-            self._chessboard.put_chessman(Chessman(self._color, self), pos)
+            # legal_points = self._chessboard.legal_points(self._color)
+            # if len(legal_points) == 0:
+            #     return
+            self._chessboard.put_chessman(Chessman(self._color, self), tuple(pos))
             self.change_color()
             winner = self._chessboard.is_finish()
             if winner is not None:
@@ -382,15 +418,31 @@ class NetworkPlayer(BaseWidget):
             return
         if not self.is_my_turn:
             return
+        # logging.critical("flag1")
         legal_points = self._chessboard.legal_points(self._color)
+        if len(legal_points) == 0:
+            self.change_color()
+            if self.tcp_socket is not None:
+                data = {
+                    "message": "position",
+                    "data": [-1, -1],
+                    "target": "player"
+                }
+                NetworkConfig.send_obj(self.tcp_socket, data)
+                self.is_my_turn = False
+                self.labelStatusValue.setText("对方回合")
+                return
         if PIVOT[0] <= a0.x() <= PIVOT[0] + 8 * (GRID_SIZE + BORDER_SIZE) and \
                 PIVOT[1] <= a0.y() <= PIVOT[1] + 8 * (GRID_SIZE + BORDER_SIZE):
+            # logging.critical("flag2")
             pos = trans_position(a0)
+            # print(pos in legal_points)
             if self._chessboard.board[pos[1]][pos[0]] is not None:
                 return
 
             if pos in legal_points:
                 self._chessboard.put_chessman(Chessman(self._color, self), pos)
+                self.change_color()
                 if self.tcp_socket is not None:
                     data = {
                         "message": "position",
@@ -398,10 +450,10 @@ class NetworkPlayer(BaseWidget):
                         "target": "player"
                     }
                     NetworkConfig.send_obj(self.tcp_socket, data)
-
             winner = self._chessboard.is_finish()
             if winner is not None:
                 self.win(winner)
                 return
-            self.is_my_turn = False
-            self.labelStatusValue.setText("对方回合")
+            if pos in legal_points:
+                self.is_my_turn = False
+                self.labelStatusValue.setText("对方回合")

@@ -24,7 +24,7 @@ class SinglePlayer(BaseWidget):
 
         self.buttonBack.clicked.connect(self.back)
         self.buttonGiveIn.clicked.connect(self._give_in)
-        self.buttonRegret.clicked.connect(self._regret)
+        # self.buttonRegret.clicked.connect(self._regret)
         self.buttonStart.clicked.connect(self._start)
         self.win_label = None
         self.win_pic = None

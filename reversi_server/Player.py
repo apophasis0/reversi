@@ -1,6 +1,7 @@
 import json
 import logging
 import socket
+import threading
 from threading import Thread
 from typing import *
 
@@ -64,7 +65,7 @@ class Player(object):
             if json_data['data'] == self.name:
                 logging.warning("尝试与自己进行游戏，发起人: %s" % self.name)
                 data = {
-                    "message": "response",
+                    "message": "reply",
                     "type": "battle",
                     "data": False,
                     "info": "创建失败，不能与自己进行游戏"
@@ -73,6 +74,7 @@ class Player(object):
                 return
             self.target = self.player_list.get_player_by_name(json_data['data'])
             if self.target is not None:
+                self.target_sock = self.target.sock
                 # 发给对手
                 data = {
                     "message": "reply",
@@ -88,6 +90,8 @@ class Player(object):
                     "data": True,
                     "name": self.target.name
                 }
+                self.target.target = self
+                self.target.target_sock = self.sock
                 Player.send_obj(self.sock, data)
                 logging.info("创建游戏，发起人: %s, 对手: %s" % (self.name, self.target.name))
             else:
@@ -126,15 +130,18 @@ class Player(object):
         while True:
             try:
                 received_data = Player.receive_sock(self.sock)
+                logging.debug(received_data)
                 json_data = json.loads(received_data)
                 if json_data['target'] == 'player':
                     if self.target is not None:
                         Player.send_obj(self.target.sock, json_data)
+                    else:
+                        logging.error("target is none")
                 elif json_data['target'] == 'server':
                     self.deal_server_data(json_data)
 
             except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError):
-                logging.info("连接断开，玩家离开游戏")
+                # logging.info("连接断开，玩家离开游戏")
                 if self in self.player_list.get_players():
                     self.player_list.remove(self)
                     self.player_list.refresh()
@@ -144,47 +151,46 @@ class Player(object):
                 logging.exception("json 解析错误")
 
 
-def singleton(cls):
-    _instance = dict()
 
-    def inner():
-        if cls not in _instance:
-            _instance[cls] = cls()
-        return _instance[cls]
-
-    return inner()
-
-
-@singleton
 class PlayerList(object):
     """
     玩家列表，使用单例模式实现
     """
 
-    def __init__(self):
-        self._players: Union[List[Player], None] = None
+    __instance_lock = threading.Lock()
+    __players = []
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(PlayerList, "_instance"):
+            with PlayerList.__instance_lock:
+                if not hasattr(PlayerList, "_instance"):
+                    PlayerList.__instance = object.__new__(cls)
+        return PlayerList.__instance
 
     def get_player_in_queue(self) -> List[Player]:
         res = list()
-        for p in self._players:
+        for p in PlayerList.__players:
             if p.is_in_queue:
                 res.append(p)
         return res
 
     def get_player_by_name(self, name: str) -> Union[Player, None]:
-        for p in self._players:
+        for p in PlayerList.__players:
             if p.name == name:
                 return p
         return None
 
     def get_players(self) -> List[Player]:
-        return self._players
+        return PlayerList.__players
+
+    def add(self, player):
+        self.__players.append(player)
 
     def broadcast(self, data: Dict[str, Any]):
         """
         向所有玩家发送信息
         """
-        for p in self._players:
+        for p in PlayerList.__players:
             Player.send_obj(p.sock, data)
 
     def refresh(self):
@@ -195,4 +201,4 @@ class PlayerList(object):
         self.broadcast(list_data)
 
     def remove(self, player):
-        self._players.remove(player)
+        PlayerList.__players.remove(player)
