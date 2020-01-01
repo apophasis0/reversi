@@ -65,10 +65,8 @@ class ChessBoard(object):
         if (len(legal_b) == 0 and len(legal_w) == 0):
             if self.white_count > self.black_count:
                 return 'w'
-            elif self.black_count < self.white_count:
-                return 'b'
             else:
-                return 'tie'
+                return 'b'
         if self.empty_points == 0:
             return 'w' if self.white_count >= self.black_count else 'b'
         return None
@@ -106,6 +104,10 @@ class ChessBoard(object):
         """
         self.board[coord[1]][coord[0]] = chessman
         self.empty_points -= 1
+        if chessman.color == 'b':
+            self.black_count += 1
+        elif chessman.color == 'w':
+            self.white_count += 1
         chessman.move(PIVOT[0] + coord[0] * (BORDER_SIZE + GRID_SIZE),
                       PIVOT[1] + coord[1] * (BORDER_SIZE + GRID_SIZE))
         chessman.resize(GRID_SIZE, GRID_SIZE)
@@ -123,6 +125,10 @@ class ChessBoard(object):
             chessman.resize(GRID_SIZE, GRID_SIZE)
             chessman.show()
             self.empty_points -= 1
+            if chessman.color == 'b':
+                self.black_count += 1
+            elif chessman.color == 'w':
+                self.white_count += 1
 
             # 更新棋盘
             for d in DIRECTIONS:  # 遍历每个方向
@@ -141,6 +147,12 @@ class ChessBoard(object):
                 if flag:
                     for c in chess_on_line:
                         if c.color != chessman.color:
+                            if c.color == 'w':
+                                self.white_count -= 1
+                                self.black_count += 1
+                            elif c.color == 'b':
+                                self.black_count -= 1
+                                self.white_count += 1
                             c.reverse()
 
 

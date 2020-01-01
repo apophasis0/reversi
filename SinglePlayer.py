@@ -26,17 +26,12 @@ class SinglePlayer(BaseWidget):
         self.buttonGiveIn.clicked.connect(self._give_in)
         self.buttonRegret.clicked.connect(self._regret)
         self.buttonStart.clicked.connect(self._start)
-        self.win_label: Union[None, QLabel] = None
+        self.win_label = None
 
         self._history = []
 
-    def _back(self):
-        pass
-
     def _start(self):
-        if self.win_label is not None:
-            self.win_label.hide()
-            self.win_label = None
+        self.win_label.hide()
         for i in range(8):
             for j in range(8):
                 if self._chessboard.board[i][j] is not None:
@@ -51,7 +46,7 @@ class SinglePlayer(BaseWidget):
         self._chessboard.set_chessman(Chessman('b', self), (4, 3))
 
     def _give_in(self):
-        self.win('w' if self._current_color == 'b' else 'b')
+        self.win('w')
 
     def _regret(self):
         pass
@@ -60,13 +55,13 @@ class SinglePlayer(BaseWidget):
         """
         黑棋或白棋获胜
         """
+        self.win_label = QLabel(self)
         if color == 'b':
-            win_pic = QPixmap('sources/black_win.png')
-        else:
-            win_pic = QPixmap('sources/white_win.png')
-        self.win_label = QLabel(parent=self)
-        self.win_label.setPixmap(win_pic)
-        self.win_label.resize(win_pic.size())
+            self.win_pic = QPixmap('./sources/black_win.png')
+        elif color == 'w':
+            self.win_pic = QPixmap('./sources/white_win.png')
+        self.win_label.setPixmap(self.win_pic)
+        self.win_label.resize(self.win_pic.size())
         self.win_label.move(50, 50)
         self.win_label.show()
         self._is_over = True
@@ -92,10 +87,7 @@ class SinglePlayer(BaseWidget):
                 self.change_color()
 
             winner = self._chessboard.is_finish()
-            if winner is not None:
-                self.win(winner)
-                return None
-
+            print(winner)
             if pos in legal_points:
                 self.auto_run()
 
