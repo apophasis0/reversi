@@ -3,7 +3,7 @@ import socket
 import sys
 from threading import Thread
 
-from reversi_server.Player import PlayerList, Player
+from Player import PlayerList, Player
 
 """
 使用一个TCP服务器进行转发，从而实现两个客户端之间的通信
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         port = int(sys.argv[1])
     else:
-        port = 10223
+        port = 12222
     try:
         tcp_server.bind(("127.0.0.1", port))
         tcp_server.listen(32)
