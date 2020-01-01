@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QListWidgetItem
 
@@ -6,6 +8,7 @@ from BaseUi import *
 from NetworkUi import Ui_FormNetwork
 from reversi_server.Player import *
 
+logging.basicConfig(level=logging.DEBUG)
 
 def receive_sock(sock):
     total_data = ""
@@ -233,6 +236,8 @@ class NetworkPlayer(BaseWidget):
         self._chessboard.set_chessman(Chessman('w', self), (4, 4))
         self._chessboard.set_chessman(Chessman('b', self), (3, 4))
         self._chessboard.set_chessman(Chessman('b', self), (4, 3))
+        self._is_finish = False
+        self._color = 'b'
 
     def restart_func(self):
         if self.win_label is not None:
@@ -252,6 +257,7 @@ class NetworkPlayer(BaseWidget):
                 self.win_label.close()
             self.win_label = None
             self._is_finish = False
+            self._color = 'b'
 
     def lose(self):
         if self._is_finish:
@@ -318,7 +324,7 @@ class NetworkPlayer(BaseWidget):
         print(data)
         if data['message'] == "action":
             if data["data"] == "restart":
-                result = QMessageBox.information(self, "通知", "对方请求开始新游戏，是否同意？",
+                result = QMessageBox.information(self, "通知", "对方请求开始新游戏，你将是先手，是否同意？",
                                                  QMessageBox.Yes | QMessageBox.No)
                 if result == QMessageBox.Yes:
                     data = {
@@ -414,11 +420,13 @@ class NetworkPlayer(BaseWidget):
         return super().closeEvent(a0)
 
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
+        logging.debug("is_finish: {}".format(self._is_finish))
+        logging.debug("is_my_turn: {}".format(self.is_my_turn))
         if self._is_finish:
             return
         if not self.is_my_turn:
             return
-        # logging.critical("flag1")
+        logging.debug("flag1")
         legal_points = self._chessboard.legal_points(self._color)
         if len(legal_points) == 0:
             self.change_color()
@@ -434,9 +442,9 @@ class NetworkPlayer(BaseWidget):
                 return
         if PIVOT[0] <= a0.x() <= PIVOT[0] + 8 * (GRID_SIZE + BORDER_SIZE) and \
                 PIVOT[1] <= a0.y() <= PIVOT[1] + 8 * (GRID_SIZE + BORDER_SIZE):
-            # logging.critical("flag2")
+            logging.debug("flag2")
             pos = trans_position(a0)
-            # print(pos in legal_points)
+            print(pos in legal_points)
             if self._chessboard.board[pos[1]][pos[0]] is not None:
                 return
 

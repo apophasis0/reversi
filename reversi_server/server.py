@@ -1,5 +1,6 @@
 import logging
 import socket
+import sys
 from threading import Thread
 
 from reversi_server.Player import PlayerList, Player
@@ -41,8 +42,10 @@ def start_listen(server_sock: socket.socket):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # port = int(sys.argv[0])
-    port = 10223
+    if len(sys.argv) == 2:
+        port = int(sys.argv[1])
+    else:
+        port = 10223
     try:
         tcp_server.bind(("127.0.0.1", port))
         tcp_server.listen(32)

@@ -11,7 +11,7 @@ from SinglePlayer import SinglePlayer
 from NetworkPlayer import NetworkConfig
 
 app = None
-ADDR = ("127.0.0.1", 10223)
+ADDR = ("127.0.0.1", 12222)
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):

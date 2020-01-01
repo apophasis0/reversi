@@ -53,7 +53,10 @@ class SinglePlayer(BaseWidget):
 
     def _give_in(self):
         if not self._is_over:
-            self.win('w')
+            if self._current_color == 'b':
+                self.win('w')
+            else:
+                self.win('b')
 
     def _regret(self):
         pass
@@ -111,7 +114,10 @@ class SinglePlayer(BaseWidget):
         legal_points = self._chessboard.legal_points(self._current_color)
         if len(legal_points) == 0:
             return
-        i = random.randint(0, len(legal_points) - 1)
+
+        # 使用贪心策略，只迭代一步
+        scores = list(map(lambda x: self._chessboard.fake_put_chessman(self._current_color, x), legal_points))
+        i = scores.index(max(scores))
         self._chessboard.put_chessman(Chessman(self._current_color, self), legal_points[i])
         self.change_color()
 

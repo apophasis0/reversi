@@ -155,6 +155,27 @@ class ChessBoard(object):
                                 self.white_count += 1
                             c.reverse()
 
+    def fake_put_chessman(self, color: str, coord: Tuple[int, int]) -> int:
+        res = 0
+        for d in DIRECTIONS:  # 遍历每个方向
+            x, y = coord[0] + d[0], coord[1] + d[1]
+            chess_on_line = list()  # 储存该方向上的所有棋子
+            flag = False
+            while 0 <= x < 8 and 0 <= y < 8 and self.board[y][x] is not None:  # 当前坐标位于棋盘内且有棋子
+                if self.board[y][x].color != color:
+                    chess_on_line.append(self.board[y][x])
+                elif self.board[y][x].color == color and len(chess_on_line) != 0:
+                    flag = True
+                    break
+                else:
+                    break
+                x, y = x + d[0], y + d[1]
+            if flag:
+                for c in chess_on_line:
+                    if c.color != color:
+                        res += 1
+        return res
+
 
 def trans_position(a0: QMouseEvent) -> Tuple[int, int]:
     x = a0.x()
