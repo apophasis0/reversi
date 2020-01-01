@@ -1,10 +1,9 @@
-from Base import *
-from BaseUi import UiBaseForm, BaseWidget
-from PyQt5 import QtGui
-from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QMouseEvent, QPixmap
-from PyQt5.QtWidgets import QLabel, QWidget
 import random
+
+from PyQt5 import QtGui
+
+from Base import *
+from BaseUi import BaseWidget
 
 
 class SinglePlayer(BaseWidget):
@@ -23,11 +22,11 @@ class SinglePlayer(BaseWidget):
         self._chessboard.set_chessman(Chessman('b', self), (3, 4))
         self._chessboard.set_chessman(Chessman('b', self), (4, 3))
 
-        self.buttonBack.clicked.connect(self._back)
+        self.buttonBack.clicked.connect(self.back)
         self.buttonGiveIn.clicked.connect(self._give_in)
         self.buttonRegret.clicked.connect(self._regret)
         self.buttonStart.clicked.connect(self._start)
-        self.win_label = None
+        self.win_label: QLabel
 
         self._history = []
 
@@ -35,6 +34,7 @@ class SinglePlayer(BaseWidget):
         pass
 
     def _start(self):
+        self.win_label.hide()
         for i in range(8):
             for j in range(8):
                 if self._chessboard.board[i][j] is not None:
@@ -49,7 +49,7 @@ class SinglePlayer(BaseWidget):
         self._chessboard.set_chessman(Chessman('b', self), (4, 3))
 
     def _give_in(self):
-        pass
+        self.win('w' if self._current_color == 'b' else 'b')
 
     def _regret(self):
         pass
@@ -117,3 +117,8 @@ class SinglePlayer(BaseWidget):
         if winner is not None:
             self.win(winner)
             return
+
+
+if __name__ == '__main__':
+    s = SinglePlayer()
+    s._chessboard.legal_points('b')
