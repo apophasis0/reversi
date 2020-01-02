@@ -1,5 +1,3 @@
-import logging
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QListWidgetItem
 
@@ -196,7 +194,7 @@ class NetworkPlayer(BaseWidget):
         self.labelStatusValue.resize(200, 20)
         self.labelStatusValue.setAlignment(Qt.AlignTop)
         self.labelStatus.move(630, 400)
-        self.labelStatusValue.move(690, 404)
+        self.labelStatusValue.move(690, 430)
 
         self.buttonStart.clicked.connect(self.start)
         self.buttonGiveIn.clicked.connect(self.lose)

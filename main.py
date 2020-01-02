@@ -1,45 +1,24 @@
 import cgitb
 import sys
 
-from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget
 
 from NetworkPlayer import NetworkConfig
 from SinglePlayer import SinglePlayer
+from mainui import Ui_Form
 
 cgitb.enable(format='error')
 app = None
 ADDR = ("127.0.0.1", 12222)
 
 
-class MainWindow(QWidget):
+class MainWindow(QWidget, Ui_Form):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
-
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(640, 480)
-        self.pushButtonSingle = QtWidgets.QPushButton(Form)
-        self.pushButtonSingle.setGeometry(QtCore.QRect(200, 100, 231, 71))
-        self.pushButtonSingle.setObjectName("pushButtonSingle")
         self.pushButtonSingle.clicked.connect(self.single)
-        self.pushButtonNetwork = QtWidgets.QPushButton(Form)
-        self.pushButtonNetwork.setGeometry(QtCore.QRect(200, 260, 231, 71))
-        self.pushButtonNetwork.setObjectName("pushButtonNetwork")
         self.pushButtonNetwork.clicked.connect(self.network)
-
-        self.gameWindow = None
-
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
-
-    def retranslateUi(self, Form):
-        _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
-        self.pushButtonSingle.setText(_translate("Form", "单人游戏"))
-        self.pushButtonNetwork.setText(_translate("Form", "在线对战"))
 
     def single(self):
         self.close()

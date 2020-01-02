@@ -119,7 +119,8 @@ class SinglePlayer(BaseWidget):
         scores = list(map(lambda x: self._chessboard.fake_put_chessman(self._current_color, x), legal_points))
         i = scores.index(max(scores))
         self._chessboard.put_chessman(Chessman(self._current_color, self), legal_points[i])
-        self.change_color()
+        if len(legal_points) != 0:
+            self.change_color()
 
         winner = self._chessboard.is_finish()
         if winner is not None:
